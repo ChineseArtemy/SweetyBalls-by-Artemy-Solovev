@@ -2,27 +2,27 @@
 #include <time.h>
 #include <iostream>
 #include <cmath>
-void drawColoredBall(int x, int y, int r, int R,int G,int B);  //рисует 3D-шар радиуса r с центром в (x,y) цвета (R,G,B)
+void drawColoredBall(int x, int y, int r, int R,int G,int B);  //СЂРёСЃСѓРµС‚ 3D-С€Р°СЂ СЂР°РґРёСѓСЃР° r СЃ С†РµРЅС‚СЂРѕРј РІ (x,y) С†РІРµС‚Р° (R,G,B)
 
-void drawOrientedBall(int x, int y, int lX, int lY, int r, int R,int G,int B); /*рисует 3D-шар радиуса r с центром в (x,y),
-                                                                                цветом (R,G,B) и бликом в сторону источника с координатами (lX, lY) */
+void drawOrientedBall(int x, int y, int lX, int lY, int r, int R,int G,int B); /*СЂРёСЃСѓРµС‚ 3D-С€Р°СЂ СЂР°РґРёСѓСЃР° r СЃ С†РµРЅС‚СЂРѕРј РІ (x,y),
+                                                                                С†РІРµС‚РѕРј (R,G,B) Рё Р±Р»РёРєРѕРј РІ СЃС‚РѕСЂРѕРЅСѓ РёСЃС‚РѕС‡РЅРёРєР° СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё (lX, lY) */
 
-int get_rand(int min, int max);  //для получения случайных координат и цвета
+int get_rand(int min, int max);  //РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СЃР»СѓС‡Р°Р№РЅС‹С… РєРѕРѕСЂРґРёРЅР°С‚ Рё С†РІРµС‚Р°
 
-void drawRingyBackground(int X, int Y, int size); //создаёт фон с тенью от источника (not done yet)
+void drawRingyBackground(int X, int Y, int size); //СЃРѕР·РґР°С‘С‚ С„РѕРЅ СЃ С‚РµРЅСЊСЋ РѕС‚ РёСЃС‚РѕС‡РЅРёРєР° (not done yet)
 
 int main()
 {
     int num, rad, sizeX, sizeY, lghtX, lghtY;
-    std::cout << "window size: ";                 //ввод размера окна
+    std::cout << "window size: ";                 //РІРІРѕРґ СЂР°Р·РјРµСЂР° РѕРєРЅР°
     std::cin >> sizeX >> sizeY;
-    std::cout << "number of sweety balls: ";  //ввод количества шаров
+    std::cout << "number of sweety balls: ";  //РІРІРѕРґ РєРѕР»РёС‡РµСЃС‚РІР° С€Р°СЂРѕРІ
     std::cin >> num;
-    std::cout << "light position: ";     //ввод координат источника света
+    std::cout << "light position: ";     //РІРІРѕРґ РєРѕРѕСЂРґРёРЅР°С‚ РёСЃС‚РѕС‡РЅРёРєР° СЃРІРµС‚Р°
     std::cin >> lghtX >> lghtY;
 
 
-    txCreateWindow(sizeX,sizeY);           //создаем окно
+    txCreateWindow(sizeX,sizeY);           //СЃРѕР·РґР°РµРј РѕРєРЅРѕ
     srand(time_t(0));
     int trueX, trueY, x1, y1, colR, colG, colB;
     for( int i = 0; i < num; i++)
@@ -30,12 +30,12 @@ int main()
         colR = get_rand(50, 255);
         colG = get_rand(50, 255);
         colB = get_rand(50, 255);
-        rad = get_rand(50, 100);                 // определяем цвет шара и его координаты
+        rad = get_rand(50, 100);                 // РѕРїСЂРµРґРµР»СЏРµРј С†РІРµС‚ С€Р°СЂР° Рё РµРіРѕ РєРѕРѕСЂРґРёРЅР°С‚С‹
         trueX = abs(sizeX-rad);
-        trueY = abs(sizeY-rad);                 // trueX, trueY для генерации шара
-        x1 = get_rand(rad, trueX);              // ЦЕЛИКОМ в окне
+        trueY = abs(sizeY-rad);                 // trueX, trueY РґР»СЏ РіРµРЅРµСЂР°С†РёРё С€Р°СЂР°
+        x1 = get_rand(rad, trueX);              // Р¦Р•Р›РРљРћРњ РІ РѕРєРЅРµ
         y1 = get_rand(rad, trueY);
-        for (double q = 0.0; q < 100.0; q+=1) {                    //рисуем шар + анимация движения по дуге окружности
+        for (double q = 0.0; q < 100.0; q+=1) {                    //СЂРёСЃСѓРµРј С€Р°СЂ + Р°РЅРёРјР°С†РёСЏ РґРІРёР¶РµРЅРёСЏ РїРѕ РґСѓРіРµ РѕРєСЂСѓР¶РЅРѕСЃС‚Рё
             txSetFillColor(RGB(0,0,0));
             txClear();
             drawOrientedBall(floor(100*cos(2*3.14*q/360))+x1, floor(100*sin(2*3.14*q/360))+y1,lghtX, lghtY, rad, colR, colG, colB);
@@ -73,4 +73,5 @@ for(int i = r; i>0; i--)
 int get_rand(int min, int max) {
     return rand() % (max - min + 1) + min;
 }
+
 
