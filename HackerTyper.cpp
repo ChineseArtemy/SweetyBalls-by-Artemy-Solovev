@@ -1,50 +1,88 @@
 #include <SFML/Graphics.hpp>
 #include <fstream>
+#include <cstdlib>
 
+class textConfig
+{
+	private:
+		float x = 0;
+		float y = 0;
+    		unsigned int size = 14;
+		std::string text = "HackerTyper by ChineseArtemy. 2019, All Rights Reserved.\n";
+    		sf::Color color = sf::Color::Green;
+	public:
+		sf::Text build()
+		{
+			sf::Text result;
+			sf::Font font;
+    			font.loadFromFile("2006.ttf");
+    			result.setFont(font);
+    			result.setPosition(this->x, this->y);
+    			result.setCharacterSize(this->size);
+    			result.setFillColor(this->color);
+			result.setString(this->text);
+			return result;
+		}
+};
 
-bool wasLineBreakIn (string text)
+bool wasLineBreakIn (std::string text)
 {
     for (int i = 0; i <= text.length(); i++)
     {
-        if (text[i] == "\n")
+        if (text[i] == '\n')
         {
             return true;
         }
     }
     return false;
 }
+
+bool textIsTooBig(sf::Text text, float windowHeight, int stringPtr)
+{
+	const sf::Font* font = text.getFont();
+	if (text.findCharacterPos(stringPtr).y + font->getLineSpacing(text.getCharacterSize()) + text.getCharacterSize() >= windowHeight)
+	{
+		return true;
+	}
+	return false;
+}
+
+char* fileCopy(const char* filename)
+{
+	std::ifstream file;
+    	file.open(filename);
+	file.seekg(0, std::ios::end);
+    	int fileSize = file.tellg();
+    	file.seekg(0, std::ios::beg);
+    	if (fileSize != 0)
+	{
+		char* res = new char[fileSize+1];
+    		file.read(res, fileSize);
+    		file.close();
+		return res;
+	}
+	return NULL;
+	
+}
+
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
+    sf::RenderWindow window(sf::VideoMode(1200, 720), "SFML works!");
 
-    ifstream sourceFile;
-    sourceFile.open("source.txt");
-    sourceFile.seekg(0, std::ios::end);
-    int fileSize = sourceFile.tellg();
-    sourceFile.seekg(0, std::ios::beg);
-    string lines = new [fileSize];
-    sourceFile.getLine(lines, fileSize);
-    sourceFile.close();
+    char* lines;
+	  lines  = fileCopy("source.txt");
 
+    textConfig  example;
+    sf::Text text = example.build(); 
 
-
-    sf::Font font;
-    font.loadFromFile("arial.ttf")
-
-    sf::Text text;
-    text.setFont(font);
-    string visibleText = "HackerTyper by ChineseArtemy. 2019, All Rights Reserved.\n";
-    text.setPosition(0,0);
-    text.setCharacterSize(14);
-    text.setFillColor(sf::Color::Green);
+    std::string visibleText = text.getString();
     int stringPtr = 0;
-    int lineCounter = 1;
-    float textSize = 14;
     float posY = text.getPosition().y;
+    float windowHeight = window.getSize().y;
+    std::string appendedPiece;
 
     while (window.isOpen())
     {
-        textSize = lineCounter * (text.getLineSpacing() + text.getCharacterSize());
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -56,21 +94,22 @@ int main()
 
                 case sf::Event::KeyPressed:
                     visibleText.append(lines, stringPtr, 3);
-                    stringPtr += 3;
-                         /* апппенднуть строку несколькими символами */
+		    appendedPiece = visibleText.substr(stringPtr, 3);
+		    stringPtr += 3;
             }
         }
 
+//	textSize = lineCounter * (font.getLineSpacing(text.getCharacterSize()) + text.getCharacterSize());
 
+     //   if (wasLineBreakIn(appendedPiece))
+       //     {
+         //       lineCounter += 1;
+          //  }
 
-        if (wasLineBreakIn(appendedPiece))
+        if (textIsTooBig(text, windowHeight, stringPtr))
             {
-                lineCounter += 1;
-            }
-        if (lineCounter >= window.getSize().y)
-            {
-                posY -= text.getCharacterSize() + text.getLineSpacing();
-                text.setPosition(0,posY);
+                posY -= text.getCharacterSize();
+                text.setPosition(0, posY);
             }
 
         text.setString(visibleText);
@@ -79,6 +118,7 @@ int main()
         window.draw(text);
         window.display();
     }
-
+    delete [] lines;
     return 0;
 }
+
