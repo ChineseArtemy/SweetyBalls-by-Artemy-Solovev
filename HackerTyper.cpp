@@ -1,28 +1,36 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
 #include <fstream>
 #include <cstdlib>
 
-class textConfig
+
+
+class Text
 {
-	private:
-		float x = 0;
-		float y = 0;
-    		unsigned int size = 14;
-		std::string text = "HackerTyper by ChineseArtemy. 2019, All Rights Reserved.\n";
-    		sf::Color color = sf::Color::Green;
 	public:
-		sf::Text build()
+		sf::Text text;	
+    	
+		void draw(sf::RenderWindow* window)
 		{
-			sf::Text result;
-			sf::Font font;
-    			font.loadFromFile("2006.ttf");
-    			result.setFont(font);
-    			result.setPosition(this->x, this->y);
-    			result.setCharacterSize(this->size);
-    			result.setFillColor(this->color);
-			result.setString(this->text);
-			return result;
+			window->draw(text);
 		}
+
+		void  build(sf::Font* font, int fontSize, sf::Color color, float x, float y)
+		{
+			text.setFont(*font);
+			text.setCharacterSize(fontSize);
+			text.setFillColor(color);
+			text.setPosition(x,y);
+			sf::Text result;
+		}
+
+		void setString(std::string visibleText)
+		{
+			text.setString(visibleText);
+		}
+		
+
+		
 };
 
 bool wasLineBreakIn (std::string text)
@@ -67,17 +75,24 @@ char* fileCopy(const char* filename)
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(1200, 720), "SFML works!");
+    sf::RenderWindow window(sf::VideoMode(1920, 1080),"HT", sf::Style::Fullscreen);
+    sf::Texture background;
+    background.loadFromFile("paper.png", sf::IntRect(0, 0, 1920,1080));
+    
+    sf::Sprite wallpaper;
+    wallpaper.setTexture(background);
 
-    char* lines;
-	  lines  = fileCopy("source.txt");
+    char* lines= fileCopy("source.txt");
+    Text text;
+    sf::Font bestFont;
+    bestFont.loadFromFile("13496.otf");
+    text.build(&bestFont, 14, sf::Color(150, 150, 150), 100, 50); 
 
-    textConfig  example;
-    sf::Text text = example.build(); 
+    std::string visibleText = ("Hacker Typer, Version 1.0. ChineseArtemy, SweetyBalls Entertainment. Press any key to start hacking...\n\n");
+    text.setString(visibleText);
 
-    std::string visibleText = text.getString();
-    int stringPtr = 0;
-    float posY = text.getPosition().y;
+    int stringPtr = visibleText.length();
+    float posY = text.text.getPosition().y;
     float windowHeight = window.getSize().y;
     std::string appendedPiece;
 
@@ -86,6 +101,7 @@ int main()
         sf::Event event;
         while (window.pollEvent(event))
         {
+
             switch (event.type)
             {
                 case sf::Event::Closed:
@@ -93,32 +109,34 @@ int main()
                     break;
 
                 case sf::Event::KeyPressed:
-                    visibleText.append(lines, stringPtr, 3);
-		    appendedPiece = visibleText.substr(stringPtr, 3);
-		    stringPtr += 3;
+		    sf::Keyboard keyboard;
+		    if (keyboard.isKeyPressed(sf::Keyboard::Escape))
+    		    {
+			window.close();
+			break;			
+		    }
+                    visibleText.append(lines, stringPtr, 2);
+		    appendedPiece = visibleText.substr(stringPtr, 2);
+		    stringPtr += 2;
             }
         }
 
-//	textSize = lineCounter * (font.getLineSpacing(text.getCharacterSize()) + text.getCharacterSize());
+        if (textIsTooBig(text.text, windowHeight, stringPtr))
+	{
+                posY -= text.text.getCharacterSize();
+		text.text.setPosition(100, posY);
+	}
 
-     //   if (wasLineBreakIn(appendedPiece))
-       //     {
-         //       lineCounter += 1;
-          //  }
-
-        if (textIsTooBig(text, windowHeight, stringPtr))
-            {
-                posY -= text.getCharacterSize();
-                text.setPosition(0, posY);
-            }
-
-        text.setString(visibleText);
+       	text.setString(visibleText);
 
         window.clear();
-        window.draw(text);
+	window.draw(wallpaper);
+	window.draw(text.text);
         window.display();
     }
+
     delete [] lines;
+
     return 0;
 }
 
